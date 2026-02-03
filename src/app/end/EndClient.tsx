@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { io } from 'socket.io-client';
 import { useUser } from '@/context/UserContext';
@@ -8,7 +8,7 @@ import { SOCKET_URL } from '@/lib/config';
 
 import SubHeader from '@/components/SubHeader';
 
-export default function EndClient() {
+function EndPageContent() {
   const router = useRouter();
   const { deviceId } = useUser();
   const searchParams = useSearchParams();
@@ -110,3 +110,16 @@ export default function EndClient() {
     </div>
   );
 }
+
+export default function EndClient() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-white font-sans text-main flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    }>
+      <EndPageContent />
+    </Suspense>
+  );
+}
+
