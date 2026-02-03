@@ -10,7 +10,7 @@ interface CameraProps {
   deviceId: string | null;
 }
 
-export default function Camera({ onCapture, isVerifying, completeVerification }: CameraProps) {
+export default function Camera({ onCapture, isVerifying, completeVerification, deviceId }: CameraProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
