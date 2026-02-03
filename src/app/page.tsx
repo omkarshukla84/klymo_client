@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
+import { API_BASE_URL } from '@/lib/config';
 import { AnimatedHero } from "@/components/ui/animated-hero";
 
 export default function LandingPage() {
@@ -10,7 +11,7 @@ export default function LandingPage() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await fetch('http://127.0.0.1:3002/api/stats');
+        const res = await fetch(`${API_BASE_URL}/api/stats`);
         const data = await res.json();
         setStats(data);
       } catch (e) {
@@ -206,4 +207,3 @@ export default function LandingPage() {
     </div>
   );
 }
-

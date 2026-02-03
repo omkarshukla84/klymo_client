@@ -1,11 +1,14 @@
 const normalizeBaseUrl = (url: string) => url.replace(/\/$/, '');
 
-const DEFAULT_BACKEND_URL = 'http://127.0.0.1:3002';
+function requireEnv(value: string | undefined, name: string): string {
+  if (!value) {
+    throw new Error(`${name} is required. Set it in your .env file.`);
+  }
+  return value;
+}
 
-export const SOCKET_URL = normalizeBaseUrl(
-  process.env.NEXT_PUBLIC_SOCKET_URL || DEFAULT_BACKEND_URL
-);
+const socketUrl = requireEnv(process.env.NEXT_PUBLIC_SOCKET_URL, 'NEXT_PUBLIC_SOCKET_URL');
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || socketUrl;
 
-export const API_BASE_URL = normalizeBaseUrl(
-  process.env.NEXT_PUBLIC_API_URL || SOCKET_URL
-);
+export const SOCKET_URL = normalizeBaseUrl(socketUrl);
+export const API_BASE_URL = normalizeBaseUrl(apiUrl);

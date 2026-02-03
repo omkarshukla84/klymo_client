@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import SubHeader from '@/components/SubHeader';
+import { API_BASE_URL } from '@/lib/config';
 
 interface Metrics {
   technical: {
@@ -29,7 +30,7 @@ export default function AdminMetricsPage() {
   useEffect(() => {
     const fetchMetrics = async () => {
       try {
-        const res = await fetch('http://127.0.0.1:3002/api/admin/metrics');
+        const res = await fetch(`${API_BASE_URL}/api/admin/metrics`);
         const data = await res.json();
         setMetrics(data);
         setLoading(false);
