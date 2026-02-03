@@ -9,16 +9,17 @@ import Camera from '@/components/Camera';
 export default function VerifyPage() {
   const [isVerifying, setIsVerifying] = useState(false);
   const router = useRouter();
-  const { setUserInfo } = useUser();
+  const { setUserInfo, deviceId } = useUser();
 
   const handleCapture = async (blob: Blob) => {
     setIsVerifying(true);
   };
 
-  const completeVerification = (detectedGender: 'M' | 'F') => {
+  const completeVerification = (detectedGender: 'M' | 'F', verificationToken: string) => {
     setUserInfo({
       genderVerified: true,
-      gender: detectedGender
+      gender: detectedGender,
+      verificationToken
     });
     setIsVerifying(false);
     router.push('/profile');
@@ -55,7 +56,7 @@ export default function VerifyPage() {
            {/* Decorative elements behind camera */}
            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-green-500/5 rounded-full blur-3xl -z-10" />
            
-           <Camera onCapture={handleCapture} isVerifying={isVerifying} completeVerification={completeVerification} />
+           <Camera onCapture={handleCapture} isVerifying={isVerifying} completeVerification={completeVerification} deviceId={deviceId} />
         </div>
 
         <p className="mt-12 text-center text-xs font-medium text-gray-400 max-w-sm mx-auto leading-relaxed">

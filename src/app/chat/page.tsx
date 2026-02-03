@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/context/UserContext';
 import { io, Socket } from 'socket.io-client';
@@ -24,10 +24,21 @@ export default function ChatPage() {
   const [roomId, setRoomId] = useState<string | null>(null);
   const [isPartnerTyping, setIsPartnerTyping] = useState(false);
   const [ownId, setOwnId] = useState<string | null>(null);
-  const [timeLeft, setTimeLeft] = useState(300);
   const socketRef = useRef<Socket | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleEndSession = useCallback(() => {
+    if (socketRef.current && roomId) {
+      socketRef.current.emit('leave_chat', roomId);
+    }
+    sessionStorage.removeItem('current_room');
+    sessionStorage.removeItem('partner_info');
+    sessionStorage.removeItem('report_target'); 
+    
+    DeviceIdentity.incrementMatchCount();
+    router.push('/end');
+  }, [roomId, router]);
 
   useEffect(() => {
     const storedRoom = sessionStorage.getItem('current_room');
@@ -68,11 +79,6 @@ export default function ChatPage() {
       handleEndSession();
     });
 
-    socket.on('room_expired', () => {
-      alert("Session Time Limit Reached. Match vanished.");
-      handleEndSession();
-    });
-
     socket.on('error', ({ message }) => {
       alert(message);
     });
@@ -80,24 +86,22 @@ export default function ChatPage() {
     return () => {
       if (socketRef.current) socketRef.current.disconnect();
     };
-  }, [router]);
+  }, [handleEndSession, router]);
 
   useEffect(() => {
-    if (timeLeft <= 0) {
-      handleEndSession();
-      return;
-    }
-    const timer = setInterval(() => {
-      setTimeLeft(prev => prev - 1);
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [timeLeft]);
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
+    const handlePageExit = () => {
+      if (socketRef.current && roomId) {
+        socketRef.current.emit('leave_chat', roomId);
+        socketRef.current.disconnect();
+      }
+    };
+    window.addEventListener('beforeunload', handlePageExit);
+    window.addEventListener('pagehide', handlePageExit);
+    return () => {
+      window.removeEventListener('beforeunload', handlePageExit);
+      window.removeEventListener('pagehide', handlePageExit);
+    };
+  }, [roomId]);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -152,18 +156,6 @@ export default function ChatPage() {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleEndSession = () => {
-    if (socketRef.current && roomId) {
-      socketRef.current.emit('leave_chat', roomId);
-    }
-    sessionStorage.removeItem('current_room');
-    sessionStorage.removeItem('partner_info');
-    sessionStorage.removeItem('report_target'); 
-    
-    DeviceIdentity.incrementMatchCount();
-    router.push('/end');
-  };
-
   return (
     <div className="min-h-screen bg-white font-sans text-main flex flex-col">
       <SubHeader />
@@ -194,10 +186,6 @@ export default function ChatPage() {
                   )}
                 </div>
               </div>
-            </div>
-            <div className="flex flex-col items-end">
-              <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Session Timer</span>
-              <div className="font-mono text-primary font-black text-lg">{formatTime(timeLeft)}</div>
             </div>
           </div>
 

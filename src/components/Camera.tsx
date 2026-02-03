@@ -6,7 +6,8 @@ import { API_BASE_URL } from '@/lib/config';
 interface CameraProps {
   onCapture: (blob: Blob) => void;
   isVerifying: boolean;
-  completeVerification: (gender: 'M' | 'F') => void;
+  completeVerification: (gender: 'M' | 'F', token: string) => void;
+  deviceId: string | null;
 }
 
 export default function Camera({ onCapture, isVerifying, completeVerification }: CameraProps) {
@@ -61,21 +62,36 @@ export default function Camera({ onCapture, isVerifying, completeVerification }:
         onCapture(new Blob()); // Keep the original prop call for flow
 
         try {
+          if (!deviceId) {
+            setShowScanning(false);
+            setVerificationResult({
+              verified: false,
+              error: "Device ID not ready. Please refresh and try again."
+            });
+            return;
+          }
           const response = await fetch(`${API_BASE_URL}/api/verify`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image: base64Image })
+            body: JSON.stringify({ image: base64Image, deviceId })
           });
           
           const data = await response.json();
           setShowScanning(false);
           
           if (data.verified) {
+            if (!data.verificationToken) {
+              setVerificationResult({
+                verified: false,
+                error: "Verification token missing. Please retry."
+              });
+              return;
+            }
             setVerificationResult({
               verified: true,
               gender: data.gender
             });
-            completeVerification(data.gender);
+            completeVerification(data.gender, data.verificationToken);
           } else {
             setVerificationResult({
               verified: false,

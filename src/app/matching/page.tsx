@@ -11,7 +11,7 @@ let socket: Socket;
 
 export default function MatchingPage() {
   const router = useRouter();
-  const { nickname, gender, matchPreference, deviceId, bio } = useUser();
+  const { nickname, gender, matchPreference, deviceId, bio, genderVerified, verificationToken } = useUser();
   const [status, setStatus] = useState('Searching...');
   const [errorStatus, setErrorStatus] = useState<string | null>(null);
 
@@ -29,12 +29,19 @@ export default function MatchingPage() {
     socket.on('connect', () => {
       setStatus('Searching...');
       setErrorStatus(null);
+      if (!genderVerified || !gender || !verificationToken) {
+        setErrorStatus('Verification required. Please verify before matching.');
+        socket.disconnect();
+        return;
+      }
       socket.emit('join_queue', {
         nickname,
         gender,
         matchPreference,
         deviceId,
-        bio
+        bio,
+        genderVerified,
+        verificationToken
       });
     });
 
@@ -60,7 +67,7 @@ export default function MatchingPage() {
     return () => {
       if (socket) socket.disconnect();
     };
-  }, [nickname, gender, matchPreference, deviceId, bio, router]);
+  }, [nickname, gender, matchPreference, deviceId, bio, genderVerified, verificationToken, router]);
 
   return (
     <div className="min-h-screen bg-white font-sans text-main">
