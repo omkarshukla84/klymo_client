@@ -28,11 +28,9 @@ export default function LandingPage() {
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-white text-lg font-bold">💬</span>
-            </div>
-            <span className="text-xl font-bold tracking-tight text-primary">AnonChat</span>
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center font-bold text-white transition-transform group-hover:scale-110 shadow-sm shadow-green-500/20">A</div>
+            <span className="text-xl font-black tracking-tighter uppercase whitespace-nowrap text-main">AnonChat</span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-8">

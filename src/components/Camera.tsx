@@ -115,8 +115,8 @@ export default function Camera({ onCapture, isVerifying, completeVerification, d
       {/* SecureVerify Header */}
       <header className="verify-header">
         <div className="verify-logo">
-          <span className="lock-icon">🔒</span>
-          <h1>SecureVerify</h1>
+          <div className="logo-mark">A</div>
+          <h1>AnonChat</h1>
         </div>
         {cameraStarted && (
           <div className="status-badge">
@@ -241,14 +241,24 @@ export default function Camera({ onCapture, isVerifying, completeVerification, d
           gap: 0.5rem;
         }
 
-        .lock-icon {
-          font-size: 1.25rem;
+        .logo-mark {
+          width: 32px;
+          height: 32px;
+          background: #62D116;
+          color: #ffffff;
+          border-radius: 0.5rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 800;
+          box-shadow: 0 6px 16px rgba(98, 209, 22, 0.2);
         }
 
         .verify-logo h1 {
           font-size: 1.25rem;
-          font-weight: 700;
-          letter-spacing: -0.025em;
+          font-weight: 800;
+          letter-spacing: -0.03em;
+          text-transform: uppercase;
           color: #2D2D2D;
         }
 

@@ -26,6 +26,7 @@ export default function ChatPage() {
   const [ownId, setOwnId] = useState<string | null>(null);
   const socketRef = useRef<Socket | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const messageListRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleEndSession = useCallback(() => {
@@ -104,8 +105,18 @@ export default function ChatPage() {
   }, [roomId]);
 
   useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isPartnerTyping]);
+    if (!messageListRef.current) return;
+    const el = messageListRef.current;
+    requestAnimationFrame(() => {
+      el.scrollTop = el.scrollHeight;
+    });
+  }, [messages.length]);
+
+  const scrollToBottom = useCallback(() => {
+    if (!messageListRef.current) return;
+    const el = messageListRef.current;
+    el.scrollTop = el.scrollHeight;
+  }, []);
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -157,7 +168,7 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white font-sans text-main flex flex-col">
+    <div className="h-screen overflow-hidden bg-white font-sans text-main flex flex-col">
       <SubHeader />
       
       <div className="flex-1 max-w-4xl w-full mx-auto px-6 pb-6 flex flex-col min-h-0">
@@ -190,7 +201,7 @@ export default function ChatPage() {
           </div>
 
           {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar scroll-smooth bg-white">
+          <div ref={messageListRef} className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar scroll-smooth bg-white">
             {messages.length === 0 && (
               <div className="h-full flex flex-col items-center justify-center opacity-30 pointer-events-none select-none">
                  <div className="text-6xl mb-4 grayscale opacity-20">💬</div>
@@ -206,7 +217,7 @@ export default function ChatPage() {
                 }`}>
                   {msg.image ? (
                     <div className="p-2">
-                      <img src={msg.image} alt="Shared" className="rounded-xl w-full h-auto max-h-64 object-cover" />
+                      <img src={msg.image} alt="Shared" onLoad={scrollToBottom} className="rounded-xl w-full h-auto max-h-64 object-cover" />
                     </div>
                   ) : (
                     <div className="px-6 py-4">
