@@ -39,6 +39,9 @@ export default function LandingPage() {
                 {item}
               </a>
             ))}
+            <Link href="/docs" className="nav-link text-[10px] font-bold text-gray-400 hover:text-gray-900 uppercase tracking-[0.2em] transition-colors">
+              DOCS
+            </Link>
           </nav>
 
           <Link href="/verify" className="bg-primary hover:bg-primary-hover text-white text-xs font-black uppercase tracking-widest px-6 py-3 rounded-full transition-all active:scale-95 shadow-lg shadow-green-500/20">
