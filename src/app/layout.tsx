@@ -9,7 +9,10 @@ export const metadata: Metadata = {
   description: "Anonymous, ephemeral, and safe chat platform.",
 };
 
+import SmoothScroll from "@/components/SmoothScroll";
 import { UserProvider } from "@/context/UserContext";
+import { AnimatedGridPattern } from "@/components/ui/animated-grid-pattern";
+import { cn } from "@/lib/utils";
 
 export default function RootLayout({
   children,
@@ -17,12 +20,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${inter.className} bg-black text-white min-h-screen selection:bg-blue-500/30`}>
+    <html lang="en">
+      <body className={`${inter.className} min-h-screen selection:bg-green-500/30`}>
         <UserProvider>
-          <main>
-            {children}
-          </main>
+          <SmoothScroll>
+            <main className="relative min-h-screen">
+              <AnimatedGridPattern
+                numSquares={30}
+                maxOpacity={0.1}
+                duration={3}
+                repeatDelay={1}
+                className={cn(
+                  "fixed inset-0 h-full w-full skew-y-12 opacity-50 z-0 pointer-events-none",
+                )}
+              />
+              <div className="relative z-10">
+                {children}
+              </div>
+            </main>
+          </SmoothScroll>
         </UserProvider>
       </body>
     </html>

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
+import { AnimatedHero } from "@/components/ui/animated-hero";
 
 export default function LandingPage() {
   const [stats, setStats] = useState({ onlineUsers: 0, waitingInQueue: 0 });
@@ -20,87 +21,189 @@ export default function LandingPage() {
     const interval = setInterval(fetchStats, 10000);
     return () => clearInterval(interval);
   }, []);
+
   return (
-    <div className="relative min-h-screen bg-black overflow-hidden bg-mesh selection:bg-blue-500/30">
-      {/* Dynamic Background Elements */}
-      <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[120px] animate-float-slow" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[100px] animate-float-slow [animation-delay:4s]" />
-
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-20 overflow-visible">
-        
-        {/* Central Visual: The Portal */}
-        <div className="relative mb-16 animate-glow group">
-          <div className="absolute inset-0 bg-blue-500/20 blur-[60px] rounded-full group-hover:bg-blue-500/30 transition-all duration-700" />
-          <div className="relative w-48 h-48 md:w-64 md:h-64 rounded-full border border-blue-500/30 p-1 flex items-center justify-center">
-            <div className="absolute inset-0 border-2 border-t-blue-500/80 border-r-indigo-500/40 border-b-purple-500/20 border-l-transparent rounded-full animate-portal" />
-            <div className="absolute inset-2 border border-blue-400/20 rounded-full animate-portal [animation-duration:15s] [animation-direction:reverse]" />
-            <div className="w-full h-full bg-black rounded-full flex items-center justify-center overflow-hidden relative shadow-inner">
-               <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.2)_0%,transparent_70%)]" />
-               <span className="text-4xl md:text-5xl font-black text-white text-glow z-10 tracking-tighter">A</span>
+    <div className="min-h-screen relative overflow-hidden flex flex-col font-sans text-main">
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <span className="text-white text-lg font-bold">💬</span>
             </div>
-          </div>
-        </div>
+            <span className="text-xl font-bold tracking-tight text-primary">AnonChat</span>
+          </Link>
 
-        {/* Hero Text */}
-        <div className="max-w-4xl mx-auto text-center space-y-6 mb-16">
-          <h1 className="text-5xl md:text-8xl font-black tracking-tighter leading-tight">
-            <span className="text-white opacity-90">ANONYMOUS.</span>
-            <br />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-blue-500 to-indigo-600">
-              SECURE. INSTANT.
-            </span>
-          </h1>
-          
-          <p className="text-lg md:text-xl text-gray-400 max-w-xl mx-auto font-medium leading-relaxed">
-            A privacy-first anonymous 1-to-1 chat platform. 
-            No logs. No PII. Just meaningful connections.
-          </p>
-        </div>
+          <nav className="hidden md:flex items-center gap-8">
+            {['SAFETY', 'WHY US?', 'FAQ'].map((item) => (
+              <a key={item} href={`#${item.toLowerCase().replace(' ', '-')}`} className="nav-link text-[10px] font-bold text-gray-400 hover:text-gray-900 uppercase tracking-[0.2em] transition-colors">
+                {item}
+              </a>
+            ))}
+          </nav>
 
-        {/* Live Status Badge */}
-        <div className="mb-8 flex items-center gap-3 px-4 py-2 bg-white/5 border border-white/10 rounded-full backdrop-blur-md animate-in fade-in slide-in-from-bottom-4 duration-1000">
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
-          <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
-            {stats.onlineUsers} Active Souls Online • {stats.waitingInQueue} in Queue
-          </span>
-        </div>
-
-        {/* Call to Action */}
-        <div className="flex flex-col sm:flex-row gap-6 justify-center items-center scale-110">
-          <Link 
-            href="/verify"
-            className="group relative px-10 py-4 bg-white text-black rounded-full font-black text-sm uppercase tracking-widest transition-all hover:bg-blue-500 hover:text-white glow-blue active:scale-95"
-          >
+          <Link href="/verify" className="bg-primary hover:bg-primary-hover text-white text-xs font-black uppercase tracking-widest px-6 py-3 rounded-full transition-all active:scale-95 shadow-lg shadow-green-500/20">
             Start Chat
           </Link>
+        </div>
+      </header>
+
+      <main className="flex-grow pt-20 pb-20">
+        <div className="max-w-7xl mx-auto px-6">
           
-          <Link 
-            href="#features"
-            className="px-10 py-4 bg-transparent text-white border border-white/20 rounded-full font-black text-sm uppercase tracking-widest transition-all hover:bg-white/10 active:scale-95"
-          >
-            How it works
-          </Link>
-        </div>
+          {/* Animated Hero Section */}
+          <AnimatedHero />
 
-        {/* Feature Grid - Minimal & Integrated */}
-        <div id="features" className="mt-32 grid grid-cols-1 md:grid-cols-3 gap-1 px-4 max-w-5xl w-full border border-white/10 rounded-[3rem] overflow-hidden bg-white/5 backdrop-blur-sm">
-          {[
-            { title: "Zero Data", desc: "No tracking, no storage.", icon: "🛡️" },
-            { title: "AI Verified", desc: "Real humans only.", icon: "🤖" },
-            { title: "Stateless", desc: "Sessions vanish instantly.", icon: "⚡" }
-          ].map((feature, i) => (
-            <div key={i} className={`p-10 flex flex-col items-center text-center ${i < 2 ? 'md:border-r border-white/10' : ''} hover:bg-white/5 transition-colors cursor-default`}>
-              <div className="text-2xl mb-4 grayscale group-hover:grayscale-0 transition-all">{feature.icon}</div>
-              <h3 className="text-sm font-black text-white uppercase tracking-widest mb-2">{feature.title}</h3>
-              <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">{feature.desc}</p>
+          {/* Divider */}
+          <div className="border-t border-gray-100 mb-20 w-3/4 mx-auto"></div>
+
+          {/* Feature Grid */}
+          <div id="safety" className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-32 max-w-6xl mx-auto">
+            {[
+              { 
+                title: "Zero data stored", 
+                desc: "We don't save anything. No logs, no IP addresses, and definitely no databases.", 
+                icon: "🚫",
+                color: "bg-red-50 text-red-500"
+              },
+              { 
+                title: "AI-verified humans", 
+                desc: "Our friendly AI check ensures you're talking to a person, not a bot, while keeping you anonymous.", 
+                icon: "🤖",
+                color: "bg-blue-50 text-blue-500"
+              },
+              { 
+                title: "Stateless sessions", 
+                desc: "Your chat lives only in your browser's memory. Refresh the page, and it's gone forever.", 
+                icon: "⚡",
+                color: "bg-orange-50 text-orange-500"
+              }
+            ].map((feature, i) => (
+              <div key={i} className="flex flex-col items-center text-center space-y-4 group p-6 rounded-3xl hover:bg-gray-50 transition-colors">
+                <div className={`w-20 h-20 rounded-3xl flex items-center justify-center text-3xl mb-2 ${feature.color} shadow-sm`}>
+                  {feature.icon}
+                </div>
+                <h3 className="text-xl font-bold text-main">{feature.title}</h3>
+                <p className="text-sm text-secondary leading-relaxed font-medium">{feature.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* How It Works Section */}
+          <div id="how-it-works" className="mb-32 text-center">
+            <h2 className="text-3xl md:text-5xl font-black text-main mb-16 tracking-tight">
+              How it works <span className="relative inline-block">
+                in 3 simple steps
+                <span className="absolute bottom-[-5px] left-0 w-full h-2 bg-primary/30 rounded-full"></span>
+              </span>
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto relative">
+               {/* Connecting Line (Desktop) */}
+               <div className="hidden md:block absolute top-[40px] left-[16%] right-[16%] h-1 bg-gray-100 -z-10"></div>
+
+               {[
+                 {
+                   step: 1,
+                   title: "AI Verification",
+                   desc: "A quick camera check to ensure you're human. We don't save your face, just your humanity.",
+                   color: "bg-primary"
+                 },
+                 {
+                   step: 2,
+                   title: "Instant Matching",
+                   desc: "Get paired with a verified person immediately. Simple, fast, and completely random.",
+                   color: "bg-primary"
+                 },
+                 {
+                   step: 3,
+                   title: "Chat & Vanish",
+                   desc: "Talk freely. Once the tab is closed, your entire session history is deleted on both ends.",
+                   color: "bg-primary"
+                 }
+               ].map((item, i) => (
+                 <div key={i} className="flex flex-col items-center">
+                    <div className={`w-20 h-20 rounded-full ${item.color} text-white text-4xl font-black flex items-center justify-center shadow-lg shadow-success/20 mb-6 border-4 border-white`}>
+                      {item.step}
+                    </div>
+                    <h3 className="text-xl font-bold text-main mb-3">{item.title}</h3>
+                    <p className="text-secondary text-sm font-medium leading-relaxed max-w-xs">
+                      {item.desc}
+                    </p>
+                 </div>
+               ))}
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
 
-      <footer className="absolute bottom-8 left-0 right-0 text-center text-[10px] text-gray-700 font-black uppercase tracking-[0.2em]">
-        © 2026 AnonChat • Built for total privacy
+          {/* Ready For Safer Chat CTA */}
+          <div className="bg-bg-light rounded-[3rem] py-20 px-6 text-center mb-32 border border-gray-100">
+             <h2 className="text-3xl md:text-4xl font-black text-main mb-8">
+               Ready for a safer chat?
+             </h2>
+             <div className="flex flex-col items-center gap-4">
+               <Link href="/verify" className="btn-primary scale-110 shadow-xl shadow-green-500/30">
+                 Find a Partner
+               </Link>
+               <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-4">
+                 Join {stats.onlineUsers > 0 ? stats.onlineUsers : '12,302'} people online right now
+               </span>
+             </div>
+          </div>
+
+          {/* FAQ Section */}
+          <div id="faq" className="max-w-3xl mx-auto mb-32">
+             <h2 className="text-3xl font-black text-main text-center mb-12">Frequently Asked Questions</h2>
+             <div className="space-y-4">
+               {[
+                 {
+                   q: "Is it really anonymous?",
+                   a: "Yes. We do not require any login, email, or phone number. We do not store logs of your chats. Once you close the tab, the data is gone forever."
+                 },
+                 {
+                   q: "Does it cost anything?",
+                   a: "No, AnonChat is completely free to use. We believe privacy should be accessible to everyone."
+                 },
+                 {
+                   q: "How does AI verification work?",
+                   a: "We use a privacy-preserving AI model that runs locally or on our secure stateless server to detect if a live human face is present. We do not store or recognize faces, we only check for 'liveness' to prevent bots."
+                 }
+               ].map((faq, i) => (
+                 <details key={i} className="group bg-white border border-gray-100 rounded-2xl overflow-hidden cursor-pointer open:shadow-md transition-all">
+                   <summary className="flex items-center justify-between p-6 font-bold text-main list-none select-none">
+                     <span>{faq.q}</span>
+                     <span className="text-gray-400 transform group-open:rotate-180 transition-transform">▼</span>
+                   </summary>
+                   <div className="px-6 pb-6 text-secondary text-sm leading-relaxed overflow-hidden">
+                     {faq.a}
+                   </div>
+                 </details>
+               ))}
+             </div>
+          </div>
+
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-white py-12 border-t border-gray-100">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-2 opacity-50">
+             <div className="w-6 h-6 bg-gray-200 rounded-lg flex items-center justify-center grayscale">
+              <span className="text-xs">💬</span>
+            </div>
+            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">© 2024 AnonChat</span>
+          </div>
+          
+          <div className="flex gap-8">
+            {['Privacy', 'Terms', 'Contact'].map((link) => (
+              <a key={link} href="#" className="text-[10px] font-bold text-gray-400 hover:text-gray-900 uppercase tracking-[0.2em] transition-colors">
+                {link}
+              </a>
+            ))}
+          </div>
+        </div>
       </footer>
     </div>
   );
 }
+

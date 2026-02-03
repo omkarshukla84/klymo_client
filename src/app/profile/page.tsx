@@ -66,101 +66,134 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-black bg-mesh">
+    <div className="min-h-screen bg-white font-sans text-main">
       <SubHeader />
       
-      <div className="max-w-md mx-auto px-6 pb-20">
-        <div className="glass p-10 rounded-[2.5rem] border border-blue-500/20 shadow-2xl relative overflow-hidden">
-          {/* Decorative Glow */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/10 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2" />
+      <div className="max-w-xl mx-auto px-6 pb-20">
+        
+        {/* Progress Bar */}
+        <div className="flex justify-center mb-12">
+           <div className="w-64 h-2 bg-gray-100 rounded-full overflow-hidden">
+             <div className="w-2/3 h-full bg-primary rounded-full" />
+           </div>
+        </div>
+
+        <div className="text-center mb-10">
+          <h1 className="text-3xl md:text-4xl font-black tracking-tight text-main mb-2">Tell us a bit about you</h1>
+          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em]">Step 02: Your Identity</p>
+        </div>
+
+        <div className="bg-white border border-gray-200 shadow-xl shadow-gray-100/50 p-8 rounded-[2rem]">
           
-          <div className="flex justify-between items-start mb-10">
-            <div>
-              <h2 className="text-3xl font-black tracking-tighter mb-1 uppercase">Build Persona</h2>
-              <p className="text-[10px] text-gray-500 font-black uppercase tracking-[0.2em]">Step 02: Your Identity</p>
-            </div>
-            {gender && (
-              <div className="flex flex-col items-end">
-                <span className="text-[8px] font-black text-gray-600 uppercase tracking-widest mb-1">AI Classification</span>
-                <div className="bg-blue-500/10 border border-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">
-                  Verified {gender === 'M' ? 'Male' : 'Female'}
-                </div>
-              </div>
-            )}
-          </div>
-
           <form onSubmit={handleStartMatching} className="space-y-8">
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Nickname</label>
-              <input 
-                type="text"
-                value={localNickname}
-                onChange={(e) => setLocalNickname(e.target.value)}
-                placeholder="Enter Nickname..."
-                required
-                className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-blue-500/50 transition-all text-sm font-medium"
-              />
+            {/* Nickname & Gender Status Row */}
+            <div className="flex flex-col md:flex-row gap-6">
+                <div className="flex-1 space-y-2">
+                    <div className="flex justify-between">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Nickname</label>
+                    </div>
+                    <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-300">face</span>
+                        <input 
+                            type="text"
+                            value={localNickname}
+                            onChange={(e) => setLocalNickname(e.target.value)}
+                            placeholder="Swift Panda"
+                            required
+                            className="w-full bg-gray-50 border border-gray-100 rounded-2xl pl-14 pr-16 py-4 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all text-sm font-bold text-main placeholder:text-gray-300"
+                        />
+                        <button type="button" className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-blue-400 uppercase hover:text-blue-500">
+                            refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div className="space-y-2 min-w-[140px]">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 text-right block">AI Status</label>
+                    <div className={`h-[54px] flex items-center justify-center rounded-2xl text-[10px] font-black uppercase tracking-wider px-4 border ${gender ? 'bg-green-50 text-green-600 border-green-100' : 'bg-gray-50 text-gray-400 border-gray-100'}`}>
+                        {gender ? (
+                            <>
+                              <span className="w-1.5 h-1.5 rounded-full bg-green-500 mr-2 animate-pulse"></span>
+                               Verified {gender === 'M' ? 'Male' : 'Female'}
+                            </>
+                        ) : 'Not Verified'}
+                    </div>
+                </div>
             </div>
 
+            {/* Bio */}
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Short Bio</label>
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Short Bio</label>
               <textarea 
                 value={localBio}
                 onChange={(e) => setLocalBio(e.target.value)}
-                placeholder="Who are you? (Keep it interesting...)"
+                placeholder="Tell your future match something friendly..."
                 required
                 maxLength={140}
-                className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-blue-500/50 transition-all h-32 resize-none text-sm font-medium leading-relaxed"
+                className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all h-32 resize-none text-sm font-medium leading-relaxed text-main placeholder:text-gray-300"
               />
             </div>
 
+            {/* Looking For */}
             <div className="space-y-4">
-              <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Looking for</label>
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">I want to talk to</label>
               <div className="flex gap-3">
-                {['Male', 'Female', 'Any'].map((pref) => (
+                {['Male', 'Female', 'Any'].map((pref) => {
+                  const val = pref === 'Any' ? 'Any' : pref[0];
+                  const isActive = localPreference === val;
+                  return (
                   <label key={pref} className="flex-1 cursor-pointer group">
                     <input 
                       type="radio" 
                       name="preference" 
-                      value={pref[0]} 
-                      checked={localPreference === (pref === 'Any' ? 'Any' : pref[0])}
-                      onChange={() => setLocalPreference(pref === 'Any' ? 'Any' : pref[0] as 'M' | 'F')}
+                      value={val} 
+                      checked={isActive}
+                      onChange={() => setLocalPreference(val as 'M' | 'F' | 'Any')}
                       className="hidden"
                     />
-                    <div className={`text-center py-3 rounded-2xl border text-[10px] font-black uppercase tracking-widest transition-all ${
-                      localPreference === (pref === 'Any' ? 'Any' : pref[0])
-                      ? 'bg-blue-600 border-blue-500 text-white shadow-[0_0_20px_rgba(37,99,235,0.3)]' 
-                      : 'bg-white/5 border-white/10 text-gray-500 group-hover:border-white/20'
+                    <div className={`flex flex-col items-center justify-center py-4 rounded-2xl border transition-all duration-200 ${
+                      isActive
+                      ? 'bg-green-50 border-primary shadow-[0_0_0_1px_rgba(98,209,22,1)]' 
+                      : 'bg-white border-gray-100 hover:border-gray-200 hover:bg-gray-50'
                     }`}>
-                      {pref}
+                      <span className={`text-[10px] font-bold uppercase ${isActive ? 'text-green-600' : 'text-gray-400'}`}>
+                        {pref === 'Any' ? 'group' : pref.toLowerCase()}
+                      </span>
+                      <span className={`text-xs font-black uppercase mt-1 ${isActive ? 'text-green-700' : 'text-gray-600'}`}>
+                        {pref}
+                      </span>
                     </div>
                   </label>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
             {error && (
-              <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-2xl text-xs font-bold text-center animate-pulse-subtle">
+              <div className="bg-red-50 border border-red-100 text-red-500 p-4 rounded-2xl text-xs font-bold text-center">
                 {error}
               </div>
             )}
 
             <button 
               type="submit"
-              className="w-full py-5 bg-white text-black rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all hover:bg-blue-600 hover:text-white glow-blue active:scale-[0.98]"
+              className="w-full py-5 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all hover:bg-primary-hover shadow-xl shadow-green-500/20 active:scale-[0.98] mt-4"
             >
-              Start Matching Now
+              Start Matching
             </button>
           </form>
-
-          <footer className="mt-10 pt-6 border-t border-white/5 text-center h-10">
-            {matchesLeft !== null && (
-              <p className="text-[8px] font-black text-gray-700 uppercase tracking-widest animate-in fade-in duration-500">
-                Available Sessions: <span className="text-gray-400">{matchesLeft} remaining</span>
-              </p>
-            )}
-          </footer>
         </div>
+
+        <footer className="mt-12 text-center">
+            {matchesLeft !== null && (
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-full border border-gray-100">
+                <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                   Available Sessions: <span className="text-gray-600">{matchesLeft} remaining</span>
+                </p>
+              </div>
+            )}
+        </footer>
       </div>
     </div>
   );

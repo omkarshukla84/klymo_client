@@ -6,10 +6,11 @@ export default function SubHeader() {
   return (
     <header className="w-full max-w-7xl mx-auto px-6 py-6 flex justify-between items-center mb-10">
       <Link href="/" className="flex items-center gap-2 group">
-        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold transition-transform group-hover:scale-110">A</div>
-        <span className="text-xl font-black tracking-tighter uppercase whitespace-nowrap">AnonChat</span>
+        <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center font-bold text-white transition-transform group-hover:scale-110 shadow-sm shadow-green-500/20">A</div>
+        <span className="text-xl font-black tracking-tighter uppercase whitespace-nowrap text-main">AnonChat</span>
       </Link>
-      <div className="px-4 py-1.5 rounded-full border border-white/10 bg-white/5 text-[10px] font-black uppercase tracking-widest text-gray-500">
+      <div className="px-4 py-1.5 rounded-full border border-gray-100 bg-white text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2 shadow-sm">
+        <span className="text-secondary">🔒</span>
         Secure Session
       </div>
     </header>

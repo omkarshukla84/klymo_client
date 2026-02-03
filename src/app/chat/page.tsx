@@ -5,16 +5,15 @@ import { useRouter } from 'next/navigation';
 import { useUser } from '@/context/UserContext';
 import { io, Socket } from 'socket.io-client';
 import { DeviceIdentity } from '@/lib/device';
-
-// Removed global socket declaration for better React state management
+import SubHeader from '@/components/SubHeader';
+import { SOCKET_URL } from '@/lib/config';
 
 interface Message {
   senderId: string;
-  text: string;
+  text?: string;
+  image?: string;
   timestamp: number;
 }
-
-import SubHeader from '@/components/SubHeader';
 
 export default function ChatPage() {
   const router = useRouter();
@@ -28,6 +27,7 @@ export default function ChatPage() {
   const [timeLeft, setTimeLeft] = useState(300);
   const socketRef = useRef<Socket | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const storedRoom = sessionStorage.getItem('current_room');
@@ -41,7 +41,14 @@ export default function ChatPage() {
     setRoomId(storedRoom);
     setPartner(JSON.parse(storedPartner));
 
-    const socket = io('http://127.0.0.1:3002', { transports: ['websocket'] });
+    const socket = io(SOCKET_URL, {
+      reconnection: true,
+      reconnectionAttempts: 10,
+      reconnectionDelay: 500,
+      reconnectionDelayMax: 3000,
+      timeout: 15000,
+      transports: ['websocket', 'polling']
+    });
     socketRef.current = socket;
 
     socket.on('connect', () => {
@@ -119,11 +126,36 @@ export default function ChatPage() {
     }
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !roomId || !socketRef.current) return;
+
+    if (file.size > 1024 * 1024) { // 1MB limit
+      alert("Image file is too large (max 1MB)");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64 = reader.result as string;
+      const newMessage: Message = {
+        senderId: ownId || 'me',
+        image: base64,
+        timestamp: Date.now()
+      };
+      
+      socketRef.current?.emit('send_image', { roomId, image: base64 });
+      setMessages(prev => [...prev, newMessage]);
+    };
+    reader.readAsDataURL(file);
+    
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
   const handleEndSession = () => {
     if (socketRef.current && roomId) {
       socketRef.current.emit('leave_chat', roomId);
     }
-    // Phase 7: Proper Cache Clearing
     sessionStorage.removeItem('current_room');
     sessionStorage.removeItem('partner_info');
     sessionStorage.removeItem('report_target'); 
@@ -133,58 +165,67 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black bg-mesh flex flex-col">
+    <div className="min-h-screen bg-white font-sans text-main flex flex-col">
       <SubHeader />
       
       <div className="flex-1 max-w-4xl w-full mx-auto px-6 pb-6 flex flex-col min-h-0">
-        <div className="glass rounded-[2rem] border border-white/10 flex-1 flex flex-col overflow-hidden mb-6 shadow-2xl">
+        <div className="bg-white rounded-[2rem] border border-gray-200 flex-1 flex flex-col overflow-hidden mb-6 shadow-xl shadow-gray-100">
+          
           {/* Chat Header */}
-          <div className="px-8 py-6 border-b border-white/5 bg-white/[0.02] flex justify-between items-center">
+          <div className="px-8 py-6 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center backdrop-blur-sm">
             <div className="flex items-center gap-4">
               <div className="relative">
-                <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-xl font-black shadow-lg">
+                <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-xl font-black text-white shadow-lg shadow-green-500/20">
                   {partner?.nickname?.charAt(0).toUpperCase() || '?'}
                 </div>
-                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-4 border-[#0b0b0b] rounded-full" />
+                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-4 border-white rounded-full" />
               </div>
               <div>
-                <h3 className="font-black text-lg tracking-tight">@{partner?.nickname || 'Anonymous'}</h3>
+                <h3 className="font-black text-lg tracking-tight text-main">@{partner?.nickname || 'Anonymous'}</h3>
                 <div className="h-4 flex items-center">
                   {isPartnerTyping ? (
                     <div className="flex gap-1 items-center">
-                      <span className="w-1 h-1 bg-blue-500 rounded-full animate-bounce"></span>
-                      <span className="w-1 h-1 bg-blue-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
-                      <span className="w-1 h-1 bg-blue-500 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+                      <span className="w-1 h-1 bg-primary rounded-full animate-bounce"></span>
+                      <span className="w-1 h-1 bg-primary rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                      <span className="w-1 h-1 bg-primary rounded-full animate-bounce [animation-delay:0.4s]"></span>
                     </div>
                   ) : (
-                    <span className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Active Session</span>
+                    <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest">Active Session</span>
                   )}
                 </div>
               </div>
             </div>
             <div className="flex flex-col items-end">
-              <span className="text-[8px] font-black text-gray-600 uppercase tracking-widest mb-1">Session Timer</span>
-              <div className="font-mono text-blue-400 font-black text-lg">{formatTime(timeLeft)}</div>
+              <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Session Timer</span>
+              <div className="font-mono text-primary font-black text-lg">{formatTime(timeLeft)}</div>
             </div>
           </div>
 
           {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar scroll-smooth">
+          <div className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar scroll-smooth bg-white">
             {messages.length === 0 && (
-              <div className="h-full flex flex-col items-center justify-center opacity-20 pointer-events-none">
-                 <div className="text-4xl mb-4">💬</div>
-                 <p className="text-[10px] font-black uppercase tracking-[0.3em]">Start the conversation</p>
+              <div className="h-full flex flex-col items-center justify-center opacity-30 pointer-events-none select-none">
+                 <div className="text-6xl mb-4 grayscale opacity-20">💬</div>
+                 <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">Start the conversation</p>
               </div>
             )}
             {messages.map((msg, i) => (
               <div key={i} className={`flex ${msg.senderId === ownId ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
-                <div className={`max-w-[80%] px-6 py-4 rounded-[1.5rem] shadow-sm ${
+                <div className={`max-w-[80%] rounded-[1.5rem] shadow-sm overflow-hidden ${
                   msg.senderId === ownId 
-                  ? 'bg-blue-600 text-white rounded-tr-none' 
-                  : 'bg-white/5 text-gray-200 rounded-tl-none border border-white/5'
+                  ? 'bg-primary text-white rounded-tr-none shadow-green-500/20' 
+                  : 'bg-gray-100 text-gray-800 rounded-tl-none border border-gray-200'
                 }`}>
-                  <p className="text-sm leading-relaxed font-medium">{msg.text}</p>
-                  <p className={`text-[8px] mt-2 font-black uppercase tracking-tighter ${msg.senderId === ownId ? 'text-white/50 text-right' : 'text-gray-500'}`}>
+                  {msg.image ? (
+                    <div className="p-2">
+                      <img src={msg.image} alt="Shared" className="rounded-xl w-full h-auto max-h-64 object-cover" />
+                    </div>
+                  ) : (
+                    <div className="px-6 py-4">
+                      <p className="text-sm leading-relaxed font-bold">{msg.text}</p>
+                    </div>
+                  )}
+                  <p className={`text-[8px] px-6 pb-2 font-black uppercase tracking-tighter ${msg.senderId === ownId ? 'text-white/70 text-right' : 'text-gray-400'}`}>
                     {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
@@ -194,7 +235,7 @@ export default function ChatPage() {
           </div>
 
           {/* Input Area */}
-          <div className="p-6 bg-white/[0.01] border-t border-white/5">
+          <div className="p-6 bg-white border-t border-gray-100">
             <form onSubmit={handleSendMessage} className="space-y-4">
               <div className="relative group">
                 <input 
@@ -202,9 +243,29 @@ export default function ChatPage() {
                   value={inputText}
                   onChange={handleTyping}
                   placeholder="Type a secure message..."
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 pr-16 focus:outline-none focus:border-blue-500/50 transition-all text-sm font-medium"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-6 py-4 pr-32 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all text-sm font-bold text-main placeholder:text-gray-400"
                 />
-                <button type="submit" className="absolute right-2 top-2 bottom-2 px-4 bg-blue-600 rounded-xl hover:bg-blue-700 transition-all active:scale-95 flex items-center justify-center shadow-lg">
+                
+                {/* Image Upload Button */}
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  onChange={handleImageUpload} 
+                  accept="image/*" 
+                  className="hidden" 
+                />
+                <button 
+                  type="button" 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="absolute right-16 top-2 bottom-2 px-3 text-gray-400 hover:text-primary transition-all active:scale-95 flex items-center justify-center border-r border-gray-200 mr-2"
+                >
+                  <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5-7l-3 3.72L9 13l-3 4h12l-4-5z" />
+                  </svg>
+                </button>
+
+                {/* Send Button */}
+                <button type="submit" className="absolute right-2 top-2 bottom-2 px-4 bg-primary rounded-xl hover:bg-primary-hover transition-all active:scale-95 flex items-center justify-center shadow-md shadow-green-500/20">
                   <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white">
                     <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
                   </svg>
@@ -217,7 +278,7 @@ export default function ChatPage() {
                   onClick={() => {
                     if (socketRef.current && partner) {
                       socketRef.current.emit('report_user', { 
-                        reporterDeviceId: deviceId, // Hardened Reporting
+                        reporterDeviceId: deviceId, 
                         targetDeviceId: partner.deviceId, 
                         reason: 'User reported via chat button' 
                       });
@@ -225,21 +286,21 @@ export default function ChatPage() {
                     sessionStorage.setItem('report_target', partner?.deviceId || '');
                     router.push('/end?report=true');
                   }}
-                  className="flex-1 rounded-2xl border border-red-500/20 bg-red-500/5 text-red-500 text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all active:scale-95"
+                  className="flex-1 rounded-2xl border border-red-100 bg-red-50 text-red-500 text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all active:scale-95"
                 >
                   Report
                 </button>
                 <button 
                   type="button"
                   onClick={handleEndSession}
-                  className="flex-1 rounded-2xl border border-white/10 bg-white/5 text-gray-400 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all active:scale-95"
+                  className="flex-1 rounded-2xl border border-gray-200 bg-white text-gray-500 text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 hover:text-gray-700 transition-all active:scale-95"
                 >
                   Leave
                 </button>
                 <button 
                   type="button" 
                   onClick={handleEndSession}
-                  className="flex-[2] rounded-2xl bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all glow-blue active:scale-95"
+                  className="flex-[2] rounded-2xl bg-primary text-white text-[10px] font-black uppercase tracking-widest hover:bg-primary-hover transition-all shadow-lg shadow-green-500/20 active:scale-95"
                 >
                   Next Match
                 </button>
